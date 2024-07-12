@@ -1,7 +1,11 @@
 import geckos, { ChannelId, ClientChannel } from "@geckos.io/client"
 import { createContext, PropsWithChildren, useEffect, useState } from "react"
 import { useEntities } from "../../components/entities/useEntities"
-import { Entity } from "../../components/entities/EntitiesContext"
+import {
+  isValidPlayerConnectedMessage,
+  isValidPlayerDisconnectedMessage,
+  isValidSetEntitiesMessage,
+} from "../../components/networking/networkMessageValidation"
 
 type GeckoClientContextType = {
   channelId: ChannelId
@@ -15,29 +19,6 @@ export const GeckoClientContext = createContext<GeckoClientContextType>({
   on: () => {},
 })
 
-type Message = {
-  channelId: string
-} & Record<string, unknown>
-
-const isValidMessage = (data: unknown): data is Message => {
-  if (typeof data !== "object") return false
-  if (data === null) return false
-
-  return "channelId" in data
-}
-
-const isValidSetEntitiesMessage = (data: unknown): data is Message & { entities: Entity[] } => {
-  if (!isValidMessage(data)) return false
-
-  return "entities" in data
-}
-
-const messageContainsEntityData = (data: unknown): data is Message & Entity => {
-  if (!isValidMessage(data)) return false
-
-  return "position" in data && "rotationY" in data && "path" in data
-}
-
 export const GeckoClientProvider = (props: PropsWithChildren) => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [connected, setConnected] = useState(false)
@@ -47,9 +28,6 @@ export const GeckoClientProvider = (props: PropsWithChildren) => {
 
   useEffect(() => {
     if (isConnecting || connected) return
-
-    // react strict mode is causing this to run twice ...
-    console.log(isConnecting, connected, channel)
 
     setIsConnecting(true)
 
@@ -69,7 +47,7 @@ export const GeckoClientProvider = (props: PropsWithChildren) => {
       setIsConnecting(false)
 
       newChannel.on("player connected", (data) => {
-        if (!messageContainsEntityData(data)) return
+        if (!isValidPlayerConnectedMessage(data)) return
 
         if (!entities[data.channelId]) {
           entities[data.channelId] = {
@@ -94,15 +72,15 @@ export const GeckoClientProvider = (props: PropsWithChildren) => {
     newChannel.on("setEntities", (data) => {
       if (!isValidSetEntitiesMessage(data)) return
 
-      data.entities.forEach((entity) => {
-        entities[entity.channelId] = entity
+      Object.entries(data.entities).forEach(([key, entity]) => {
+        entities[key] = entity
       })
 
       forceUpdate()
     })
 
     newChannel.on("player disconnected", (data) => {
-      if (!isValidMessage(data)) return
+      if (!isValidPlayerDisconnectedMessage(data)) return
 
       delete entities[data.channelId]
       forceUpdate()

@@ -26,8 +26,6 @@ export const NavigationMesh = ({ children, randomSeed, onClick }: Props) => {
 
     const res = threeToSoloNavMesh(meshes, navMeshConfig)
 
-    console.log("was able to create navmesh", res.success)
-
     if (res.success) {
       navmesh = res.navMesh
 

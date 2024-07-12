@@ -17,6 +17,10 @@ export const GeckoServerContext = createContext<GeckoServerContextType>({
   on: () => {}, // noop
 })
 
+// do: on the server disambiguate between channels and entities
+//     channels are the connection to the client, these could somewhat be merged
+//     (but there are entities that are not connected players)
+
 // do: we need to figure out how to make sure we only instantiate the server once,
 //     but always get up-to-date channels and entities
 export const GeckoServerProvider = (props: PropsWithChildren) => {
@@ -33,26 +37,32 @@ export const GeckoServerProvider = (props: PropsWithChildren) => {
     newIo.listen(5544) // default port is 9208
 
     newIo.onConnection((channel) => {
+      if (!channel.id) return
+
       setChannels((prevChannels) => [...prevChannels.filter((c) => c.id !== channel.id), channel])
 
-      // do: when new user connects, send all the entities to the new user
-      console.log("setEntities", channels.length, Object.keys(entities).length)
-      channel.emit("setEntities", {
-        entities: channels.map((c) => ({
-          channelId: c.id,
+      if (!entities[channel.id]) {
+        entities[channel.id] = {
+          channelId: channel.id,
           position: [0, 0, 0],
           rotationY: 0,
           path: [],
-        })),
+        }
+      }
+
+      channel.emit("setEntities", {
+        entities,
       })
 
       channel.onDisconnect(() => {
-        newIo.room(channel.roomId).emit("player disconnected", { channelId: channel.id })
-
+        newIo.emit("player disconnected", { channelId: channel.id })
+        if (channel.id && entities[channel.id]) {
+          delete entities[channel.id]
+        }
         setChannels((prevChannels) => prevChannels.filter((c) => c.id !== channel.id))
       })
 
-      newIo.room(channel.roomId).emit("player connected", {
+      newIo.emit("player connected", {
         channelId: channel.id,
         position: [0, 0, 0],
         rotationY: 0,
@@ -69,7 +79,6 @@ export const GeckoServerProvider = (props: PropsWithChildren) => {
   const emit: GeckosServer["emit"] = (eventName, data) => io.emit(eventName, data)
 
   const on: On = (event, callback) => {
-    console.log("listening on event", event, "for", channels.length, "channels")
     channels.forEach((channel) => {
       channel.on(event, (data, sender) => {
         callback(io, channel, data, sender)

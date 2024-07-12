@@ -2,7 +2,7 @@ import { useRef } from "react"
 
 import { Group, Object3DEventMap, Quaternion, Vector3 } from "three"
 import { useFrame } from "@react-three/fiber"
-import { Entity } from "./entities/EntitiesContext"
+import { Entity } from "r3f-multiplayer"
 
 const PLAYER_SPEED = 8
 
@@ -33,6 +33,7 @@ export const useUpdateUnitOnPath = ({ entity, ref }: Args) => {
   const { next, direction, vFrom, vTo, nextPosition, turnDirection } = useRefs()
 
   useFrame((_, delta) => {
+    console.log("running on the server?")
     if (!entity || !ref) return
 
     const nextEl = entity.path[0]

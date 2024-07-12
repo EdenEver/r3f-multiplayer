@@ -1,5 +1,6 @@
 # todo
 
+* relative paths to components folder (server-components, client-components) in the vite config
 * make server-side hot reloading ignore client-components
 * make client-side hot reloading ignore server-components
 * fix vite build with dynamic paths (there is a plugin for this)
@@ -14,3 +15,4 @@
 ## notes
 
 * brave://webrtc-internals/ for debugging webrtc
+

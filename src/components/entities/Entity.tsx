@@ -1,6 +1,6 @@
+import { Entity as EntityType } from "r3f-multiplayer"
 import { Capsule } from "@react-three/drei"
 import { useUpdateUnitOnPath } from "../useUpdateUnitOnPath"
-import { Entity as EntityType } from "./EntitiesContext"
 import { useRef } from "react"
 import { Group } from "three"
 

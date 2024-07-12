@@ -1,6 +1,8 @@
 import { useEffect } from "react"
 import { Group } from "three"
 import { useGeckoServer } from "./helpers/useGeckoServer"
+import { isValidPathMessage } from "../components/networking/networkMessageValidation"
+import { useEntities } from "../components/entities/useEntities"
 
 type Props = {
   entity: React.MutableRefObject<Group | null>
@@ -12,36 +14,21 @@ type Props = {
 
 const ServerEntityMovement = ({ entity }: Props) => {
   const { on, emit } = useGeckoServer()
+  const { entities, forceUpdate } = useEntities()
 
-  console.log("hi")
   useEffect(() => {
-    on("setPath", (io, channel, data) => {
-      console.log("set path on the server", JSON.stringify(data))
-      // if data is a valid object
-      if (typeof data !== "object") return
+    on("setPath", (io, _channel, data) => {
+      if (!isValidPathMessage(data)) return
+      if (!entities[data.channelId]) return
 
-      io.emit("setPath", {
-        channelId: channel.id,
-        ...data,
-      })
+      entities[data.channelId].position = data.position
+      entities[data.channelId].path = data.path
 
-      // io.room(channel.roomId).emit("setPath", {
-      //   channelId: channel.id,
-      //   ...data,
-      // })
+      forceUpdate()
+
+      io.emit("setPath", data)
     })
-
-    //   if (entity.current) {
-    //     const interval = setInterval(() => {
-    //       emit("updateEntity", {
-    //         position: entity.current?.position.toArray(),
-    //         rotationY: entity.current?.rotation.y,
-    //       })
-    //     }, 1000)
-
-    //     return () => clearInterval(interval)
-    //   }
-  }, [emit, entity, on])
+  }, [emit, entities, entity, forceUpdate, on])
 
   return null
 }

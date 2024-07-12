@@ -13,27 +13,19 @@ import { useGeckoClient } from "../client-components/helpers/useGeckoClient"
 import { useEntities, useOwnEntity } from "./entities/useEntities"
 import { ServerComponent } from "../server-components/helpers/ServerComponent"
 import { ClientComponent } from "../client-components/helpers/ClientComponent"
+import { Path, PathMessage } from "r3f-multiplayer"
 
 type SceneProps = {
   randomSeed: number
   serverOnly?: boolean
 }
 
-export type Path = [number, number, number][]
-
-// note: only works after Ctrl + S, ie. after hot reload, this is because the ref does not cause a re-render
-//       which is by design and desired, since we don't want to re-render the whole scene every frame
-//       however, for this kind of things, a forceUpdate function works well... tomorrow
 const Scene = ({ randomSeed }: SceneProps) => {
   const entity = useOwnEntity()
   const { entities } = useEntities()
   const client = useGeckoClient()
 
-  console.log([entity?.channelId, ...Object.keys(entities)])
-  // const forceUpdate = useForceUpdate()
-
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
-    console.log(entity)
     if (e.button !== THREE.MOUSE.LEFT) return
     if (!entity) return
     if (!navmesh) return
@@ -42,23 +34,22 @@ const Scene = ({ randomSeed }: SceneProps) => {
 
     const startPosition = entity.position
 
-    console.log(startPosition)
     if (!startPosition) return
 
     const { success, path } = query.computePath(new THREE.Vector3(...startPosition), e.point)
-
-    console.log(success, path)
 
     if (success) {
       const newPath: Path = path.map((p) => [p.x, p.y, p.z])
 
       entity.path = newPath
-      // setPath(newPath)
 
-      client.emit("setPath", {
+      const message: PathMessage = {
+        channelId: entity.channelId,
         position: startPosition,
         path: newPath,
-      })
+      }
+
+      client.emit("setPath", message)
     }
   }
 

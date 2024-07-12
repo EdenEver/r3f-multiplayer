@@ -7,7 +7,6 @@ export const ServerComponent = ({ component, ...props }: { component: string } &
 
   useEffect(() => {
     if (typeof window === "undefined") {
-      console.log("hiii")
       setComponent(lazy(() => import(`../${component}.tsx`)))
     }
   }, [component])

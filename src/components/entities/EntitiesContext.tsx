@@ -1,14 +1,5 @@
+import { Entity } from "r3f-multiplayer"
 import { createContext, PropsWithChildren, useRef, useState } from "react"
-import { Path } from "../Scene"
-
-// do: move type definition to a shared location
-
-export type Entity = {
-  channelId: string
-  position: [number, number, number]
-  rotationY: number
-  path: Path
-}
 
 type EntitiesContextType = {
   forceUpdate: () => void
