@@ -33,7 +33,6 @@ export const useUpdateUnitOnPath = ({ entity, ref }: Args) => {
   const { next, direction, vFrom, vTo, nextPosition, turnDirection } = useRefs()
 
   useFrame((_, delta) => {
-    console.log("running on the server?")
     if (!entity || !ref) return
 
     const nextEl = entity.path[0]
