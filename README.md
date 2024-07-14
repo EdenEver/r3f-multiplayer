@@ -1,3 +1,12 @@
+# R3F Multiplayer
+
+A project showing how to do a multiplayer game with react-three-fiber and gecko.io. The unique aspect of this project is that it uses a single codebase for both the client and the server. The server is a node.js server that runs the same code as the client, but with a different entry point, that is the React application is running on th server, using @react-three/test-rendering.
+
+## IN PROGRESS
+
+
+**OBS!! This project is in progress and is not yet ready for use.**
+
 # todo
 
 * relative paths to components folder (server-components, client-components) in the vite config
