@@ -19,46 +19,39 @@ export const EntitiesContext = createContext<EntitiesContextType>({
 export const EntitiesProvider = (props: PropsWithChildren) => {
   const [entities, setEntities] = useState<Record<string, Entity>>({})
 
-  const addOrUpdateEntity = useCallback(
-    (state: EntityState) => {
-      const { id, position, rotationY, path } = state
+  const addOrUpdateEntity = useCallback((state: EntityState) => {
+    const { id, position, rotationY, path } = state
 
-      if (!id) return
+    if (!id) return
 
-      const newEntities = { ...entities }
-
-      if (!newEntities[id]) {
-        newEntities[id] = {
+    setEntities((entities) => {
+      if (!entities[id]) {
+        entities[id] = {
           id: id,
           path: path ?? [],
           ref: createRef<Group>(), // how to set position in this case?
         }
       } else {
-        if (path) newEntities[id].path = path
+        if (path) entities[id].path = path
 
-        if (newEntities[id].ref.current) {
-          if (position) newEntities[id].ref.current.position.set(...position)
-          if (rotationY) newEntities[id].ref.current.rotation.y = rotationY
+        if (entities[id].ref.current) {
+          if (position) entities[id].ref.current.position.set(...position)
+          if (rotationY) entities[id].ref.current.rotation.y = rotationY
         }
       }
 
-      setEntities(newEntities)
-    },
-    [entities]
-  )
+      return entities
+    })
+  }, [])
 
-  const removeEntity = useCallback(
-    (id: EntityId) => {
-      if (!id) return
+  const removeEntity = useCallback((id: EntityId) => {
+    if (!id) return
 
-      const newEntities = { ...entities }
-
-      delete newEntities[id]
-
-      setEntities(newEntities)
-    },
-    [entities]
-  )
+    setEntities((entities) => {
+      delete entities[id]
+      return entities
+    })
+  }, [])
 
   return (
     <EntitiesContext.Provider

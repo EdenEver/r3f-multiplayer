@@ -55,8 +55,6 @@ export const GeckosServerProvider = (props: PropsWithChildren) => {
     newIo.onConnection((channel) => {
       if (!channel.id) return
 
-      console.log("new connection", channel.id, channels, entities)
-
       setChannels((prevChannels) => [...prevChannels.filter((c) => c.id !== channel.id), channel])
 
       const state: EntityState = {
@@ -83,6 +81,8 @@ export const GeckosServerProvider = (props: PropsWithChildren) => {
         newIo.emit("player disconnected", { channelId: channel.id })
 
         if (!channel.id) return
+
+        removeEntity(channel.id)
 
         if (channelSubscriptions[channel.id]) delete channelSubscriptions[channel.id]
 
