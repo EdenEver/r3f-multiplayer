@@ -1,9 +1,8 @@
 import "./index.css"
 
-import React from "react"
 import ReactDOM from "react-dom/client"
 import App from "./App"
-import { GeckoClientProvider } from "./client-components/helpers/GeckoClientContext"
+import { GeckosClientProvider } from "./client-components/helpers/GeckosClientContext"
 import { EntitiesProvider } from "./components/entities/EntitiesContext"
 
 // do: add back strict mode after fixing the double connection issue
@@ -13,8 +12,8 @@ import { EntitiesProvider } from "./components/entities/EntitiesContext"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <EntitiesProvider>
-    <GeckoClientProvider>
+    <GeckosClientProvider>
       <App />
-    </GeckoClientProvider>
+    </GeckosClientProvider>
   </EntitiesProvider>
 )

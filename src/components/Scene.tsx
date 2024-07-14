@@ -9,7 +9,7 @@ import { suspend } from "suspend-react"
 // move to a context or something like that, just a temporary solution
 import { NavigationMesh, navmesh } from "./navigation/NavigationMesh"
 import { Entity } from "./entities/Entity"
-import { useGeckoClient } from "../client-components/helpers/useGeckoClient"
+import { useGeckosClient } from "../client-components/helpers/useGeckosClient"
 import { useEntities, useOwnEntity, useAddOrUpdateEntity } from "./entities/entityHooks"
 import { ServerComponent } from "../server-components/helpers/ServerComponent"
 import { ClientComponent } from "../client-components/helpers/ClientComponent"
@@ -22,7 +22,7 @@ type SceneProps = {
 }
 
 const Scene = ({ randomSeed }: SceneProps) => {
-  const client = useGeckoClient()
+  const client = useGeckosClient()
 
   const entity = useOwnEntity()
   const entities = useEntities()

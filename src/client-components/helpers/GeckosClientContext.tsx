@@ -1,4 +1,4 @@
-import geckos, { ChannelId, ClientChannel } from "@geckos.io/client"
+import geckoss, { ChannelId, ClientChannel } from "@geckos.io/client"
 import { createContext, PropsWithChildren, useEffect, useState } from "react"
 import {
   isValidPlayerConnectedMessage,
@@ -8,19 +8,19 @@ import {
 import { useRemoveEntity, useAddOrUpdateEntity } from "../../components/entities/entityHooks"
 import { EntityState } from "r3f-multiplayer"
 
-type GeckoClientContextType = {
+type GeckosClientContextType = {
   channelId: ChannelId
   emit: ClientChannel["emit"]
   on: ClientChannel["on"]
 }
 
-export const GeckoClientContext = createContext<GeckoClientContextType>({
+export const GeckosClientContext = createContext<GeckosClientContextType>({
   channelId: "",
   emit: () => {},
   on: () => {},
 })
 
-export const GeckoClientProvider = (props: PropsWithChildren) => {
+export const GeckosClientProvider = (props: PropsWithChildren) => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [connected, setConnected] = useState(false)
   const [channel, setChannel] = useState<ClientChannel | null>(null)
@@ -35,7 +35,7 @@ export const GeckoClientProvider = (props: PropsWithChildren) => {
 
     setIsConnecting(true)
 
-    const newChannel = geckos({ port: 5544 }) // default port is 9208
+    const newChannel = geckoss({ port: 5544 }) // default port is 9208
 
     newChannel.onConnect((error) => {
       if (error) {
@@ -111,8 +111,8 @@ export const GeckoClientProvider = (props: PropsWithChildren) => {
   const on: ClientChannel["on"] = (eventName, callback) => channel.on(eventName, callback)
 
   return (
-    <GeckoClientContext.Provider value={{ emit, on, channelId: channel.id }}>
+    <GeckosClientContext.Provider value={{ emit, on, channelId: channel.id }}>
       {props.children}
-    </GeckoClientContext.Provider>
+    </GeckosClientContext.Provider>
   )
 }

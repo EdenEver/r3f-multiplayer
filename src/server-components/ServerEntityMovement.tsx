@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { Group } from "three"
-import { useGeckoServer } from "./helpers/useGeckoServer"
+import { useGeckosServer } from "./helpers/useGeckosServer"
 import { isValidPathMessage } from "../components/networking/networkMessageValidation"
 import { PathMessage } from "r3f-multiplayer"
 import { useAddOrUpdateEntity } from "../components/entities/entityHooks"
@@ -14,7 +14,7 @@ type Props = {
 //     or just verify that the click was possible
 
 const ServerEntityMovement = ({ entity }: Props) => {
-  const { on, emit } = useGeckoServer()
+  const { on, emit } = useGeckosServer()
   const addOrUpdateEntity = useAddOrUpdateEntity()
 
   useEffect(() => {

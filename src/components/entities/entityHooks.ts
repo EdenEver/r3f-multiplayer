@@ -1,7 +1,7 @@
 import { MutableRefObject, useContext, useMemo } from "react"
 import { Group } from "three"
 import { Entity, EntityId } from "r3f-multiplayer"
-import { useGeckoClient } from "../../client-components/helpers/useGeckoClient"
+import { useGeckosClient } from "../../client-components/helpers/useGeckosClient"
 import { EntitiesContext } from "./EntitiesContext"
 
 export const useEntities = () => {
@@ -47,7 +47,7 @@ export const useRemoveEntity = () => {
 }
 
 export const useOwnEntity = (): Entity | null => {
-  const { channelId } = useGeckoClient()
+  const { channelId } = useGeckosClient()
   const entity = useEntity(channelId)
 
   return entity
