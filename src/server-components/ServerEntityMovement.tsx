@@ -2,7 +2,8 @@ import { useEffect } from "react"
 import { Group } from "three"
 import { useGeckoServer } from "./helpers/useGeckoServer"
 import { isValidPathMessage } from "../components/networking/networkMessageValidation"
-import { useEntities } from "../components/entities/useEntities"
+import { PathMessage } from "r3f-multiplayer"
+import { useAddOrUpdateEntity } from "../components/entities/entityHooks"
 
 type Props = {
   entity: React.MutableRefObject<Group | null>
@@ -14,21 +15,31 @@ type Props = {
 
 const ServerEntityMovement = ({ entity }: Props) => {
   const { on, emit } = useGeckoServer()
-  const { entities, forceUpdate } = useEntities()
+  const addOrUpdateEntity = useAddOrUpdateEntity()
 
   useEffect(() => {
     on("setPath", (io, _channel, data) => {
+      console.log("setting path on the server")
+
       if (!isValidPathMessage(data)) return
-      if (!entities[data.channelId]) return
 
-      entities[data.channelId].position = data.position
-      entities[data.channelId].path = data.path
+      const args = {
+        id: data.channelId,
+        position: data.position,
+        path: data.path,
+      }
 
-      forceUpdate()
+      addOrUpdateEntity(args)
 
-      io.emit("setPath", data)
+      const message: PathMessage = {
+        channelId: data.channelId,
+        position: data.position,
+        path: data.path,
+      }
+
+      io.emit("setPath", message)
     })
-  }, [emit, entities, entity, forceUpdate, on])
+  }, [emit, entity, on, addOrUpdateEntity])
 
   return null
 }

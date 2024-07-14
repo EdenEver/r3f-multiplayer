@@ -10,10 +10,11 @@ import { suspend } from "suspend-react"
 import { NavigationMesh, navmesh } from "./navigation/NavigationMesh"
 import { Entity } from "./entities/Entity"
 import { useGeckoClient } from "../client-components/helpers/useGeckoClient"
-import { useEntities, useOwnEntity } from "./entities/useEntities"
+import { useEntities, useOwnEntity, useAddOrUpdateEntity } from "./entities/entityHooks"
 import { ServerComponent } from "../server-components/helpers/ServerComponent"
 import { ClientComponent } from "../client-components/helpers/ClientComponent"
 import { Path, PathMessage } from "r3f-multiplayer"
+import { Vector3 } from "three"
 
 type SceneProps = {
   randomSeed: number
@@ -21,36 +22,54 @@ type SceneProps = {
 }
 
 const Scene = ({ randomSeed }: SceneProps) => {
-  const entity = useOwnEntity()
-  const { entities } = useEntities()
   const client = useGeckoClient()
+
+  const entity = useOwnEntity()
+  const entities = useEntities()
+  const addOrUpdateEntity = useAddOrUpdateEntity()
 
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (e.button !== THREE.MOUSE.LEFT) return
-    if (!entity) return
+    if (!entity?.ref.current) return
     if (!navmesh) return
+
+    const ref = entity.ref.current
 
     const query = new NavMeshQuery(navmesh)
 
-    const startPosition = entity.position
+    const startPosition = ref.position.clone()
 
     if (!startPosition) return
 
-    const { success, path } = query.computePath(new THREE.Vector3(...startPosition), e.point)
+    const { success, path } = query.computePath(startPosition, e.point)
 
-    if (success) {
-      const newPath: Path = path.map((p) => [p.x, p.y, p.z])
+    if (!success) return
 
-      entity.path = newPath
+    const newPath: Path = path.map((p) => [p.x, p.y, p.z])
 
-      const message: PathMessage = {
-        channelId: entity.channelId,
-        position: startPosition,
-        path: newPath,
-      }
+    // NOTE(Alan): Remove close to entity paths to allow repeated clicks with staggered movement
+    while (true) {
+      if (path?.length < 2) break
 
-      client.emit("setPath", message)
+      const next = new Vector3(path[0].x, path[0].y, path[0].z)
+
+      if (startPosition.distanceTo(next) >= 0.1) break
+
+      path.shift()
     }
+
+    const message: PathMessage = {
+      channelId: entity.id,
+      position: startPosition.toArray(),
+      path: newPath,
+    }
+
+    addOrUpdateEntity({
+      id: entity.id,
+      path: newPath,
+    })
+
+    client.emit("setPath", message)
   }
 
   return (

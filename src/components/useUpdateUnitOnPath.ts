@@ -1,8 +1,9 @@
 import { useRef } from "react"
 
-import { Group, Object3DEventMap, Quaternion, Vector3 } from "three"
+import { Quaternion, Vector3 } from "three"
 import { useFrame } from "@react-three/fiber"
 import { Entity } from "r3f-multiplayer"
+import { useAddOrUpdateEntity } from "./entities/entityHooks"
 
 const PLAYER_SPEED = 8
 
@@ -24,16 +25,14 @@ const useRefs = () => {
   }
 }
 
-type Args = {
-  entity: Entity
-  ref: Group<Object3DEventMap> | null
-}
-
-export const useUpdateUnitOnPath = ({ entity, ref }: Args) => {
+export const useUpdateUnitOnPath = (entity: Entity) => {
   const { next, direction, vFrom, vTo, nextPosition, turnDirection } = useRefs()
+  const addOrUpdateEntity = useAddOrUpdateEntity()
 
   useFrame((_, delta) => {
-    if (!entity || !ref) return
+    if (!entity.ref.current) return
+
+    const ref = entity.ref.current
 
     const nextEl = entity.path[0]
 
@@ -54,14 +53,11 @@ export const useUpdateUnitOnPath = ({ entity, ref }: Args) => {
 
     ref.position.lerp(nextPosition, 1.1)
 
-    const position: [number, number, number] = [ref.position.x, ref.position.y, ref.position.z]
-    const rotation: [number, number, number] = [ref.rotation.x, ref.rotation.y, ref.rotation.z]
-
-    entity.position = position
-    entity.rotationY = rotation[1]
-
     if (ref.position.distanceTo(next) < 0.1) {
-      entity.path = entity.path.length > 0 ? entity.path.slice(1) : []
+      addOrUpdateEntity({
+        id: entity.id,
+        path: entity.path.length > 0 ? entity.path.slice(1) : [],
+      })
     }
   })
 }

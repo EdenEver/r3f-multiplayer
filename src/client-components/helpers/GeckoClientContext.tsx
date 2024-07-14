@@ -1,11 +1,12 @@
 import geckos, { ChannelId, ClientChannel } from "@geckos.io/client"
 import { createContext, PropsWithChildren, useEffect, useState } from "react"
-import { useEntities } from "../../components/entities/useEntities"
 import {
   isValidPlayerConnectedMessage,
   isValidPlayerDisconnectedMessage,
   isValidSetEntitiesMessage,
 } from "../../components/networking/networkMessageValidation"
+import { useRemoveEntity, useAddOrUpdateEntity } from "../../components/entities/entityHooks"
+import { EntityState } from "r3f-multiplayer"
 
 type GeckoClientContextType = {
   channelId: ChannelId
@@ -24,7 +25,10 @@ export const GeckoClientProvider = (props: PropsWithChildren) => {
   const [connected, setConnected] = useState(false)
   const [channel, setChannel] = useState<ClientChannel | null>(null)
 
-  const { entities, forceUpdate } = useEntities()
+  const addOrUpdateEntity = useAddOrUpdateEntity()
+  const removeEntity = useRemoveEntity()
+
+  // const ctx = useContext(EntitiesContext)
 
   useEffect(() => {
     if (isConnecting || connected) return
@@ -49,44 +53,48 @@ export const GeckoClientProvider = (props: PropsWithChildren) => {
       newChannel.on("player connected", (data) => {
         if (!isValidPlayerConnectedMessage(data)) return
 
-        if (!entities[data.channelId]) {
-          entities[data.channelId] = {
-            channelId: data.channelId,
-            position: data.position,
-            rotationY: data.rotationY,
-            path: data.path ?? [],
-          }
-        }
-
-        entities[data.channelId] = {
-          channelId: data.channelId,
+        const state: EntityState = {
+          id: data.channelId,
           position: data.position,
           rotationY: data.rotationY,
-          path: data.path ?? [],
+          path: data.path,
         }
 
-        forceUpdate()
+        addOrUpdateEntity(state)
       })
     })
 
     newChannel.on("setEntities", (data) => {
       if (!isValidSetEntitiesMessage(data)) return
 
-      Object.entries(data.entities).forEach(([key, entity]) => {
-        entities[key] = entity
-      })
+      Object.values(data.entities).forEach((entity) => {
+        const state: EntityState = {
+          id: entity.channelId,
+          position: entity.position,
+          rotationY: entity.rotationY,
+          path: entity.path,
+        }
 
-      forceUpdate()
+        addOrUpdateEntity(state)
+      })
     })
 
     newChannel.on("player disconnected", (data) => {
       if (!isValidPlayerDisconnectedMessage(data)) return
 
-      delete entities[data.channelId]
-      forceUpdate()
+      removeEntity(data.channelId)
     })
 
     setChannel(newChannel)
+
+    if (newChannel.id) {
+      addOrUpdateEntity({
+        id: newChannel.id,
+        position: [0, 0, 0],
+        rotationY: 0,
+        path: [],
+      })
+    }
 
     return () => {
       if (channel) {
@@ -94,7 +102,7 @@ export const GeckoClientProvider = (props: PropsWithChildren) => {
         setChannel(null)
       }
     }
-  }, [isConnecting, connected, channel, entities, forceUpdate])
+  }, [isConnecting, connected, channel, addOrUpdateEntity, removeEntity])
 
   if (!connected || !channel) return null
 

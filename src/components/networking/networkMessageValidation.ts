@@ -1,19 +1,23 @@
-import { Entity, RpcMessage, PathMessage } from "r3f-multiplayer"
+import { RpcMessage, PathMessage, EntityMessage } from "r3f-multiplayer"
 
 export const isValidRpcMessage = (data: unknown): data is RpcMessage =>
   typeof data === "object" && data !== null
 
-export const isValidSetEntitiesMessage = (data: unknown): data is { entities: { [key in string]: Entity } } =>
-  isValidRpcMessage(data) && "entities" in data && typeof data.entities === "object"
+export type SetEntitiesMessage = {
+  entities: EntityMessage[]
+}
 
-export const isValidPlayerConnectedMessage = (data: unknown): data is RpcMessage & Entity =>
+export const isValidSetEntitiesMessage = (data: unknown): data is SetEntitiesMessage =>
+  isValidRpcMessage(data) && "entities" in data && Array.isArray(data.entities)
+
+export const isValidPlayerConnectedMessage = (data: unknown): data is RpcMessage & EntityMessage =>
   isValidRpcMessage(data) &&
   "channelId" in data &&
   "position" in data &&
   "rotationY" in data &&
   "path" in data
 
-export const isValidPlayerDisconnectedMessage = (data: unknown): data is RpcMessage & Entity =>
+export const isValidPlayerDisconnectedMessage = (data: unknown): data is RpcMessage & EntityMessage =>
   isValidRpcMessage(data) && "channelId" in data
 
 export const isValidPathMessage = (data: unknown): data is PathMessage => {

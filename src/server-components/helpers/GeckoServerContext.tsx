@@ -1,6 +1,8 @@
 import { createContext, PropsWithChildren, useEffect, useState } from "react"
 import geckos, { ChannelId, Data, GeckosServer, ServerChannel } from "@geckos.io/server"
-import { useEntities } from "../../components/entities/useEntities"
+import { useEntities, useRemoveEntity, useAddOrUpdateEntity } from "../../components/entities/entityHooks"
+import { EntityState } from "r3f-multiplayer"
+import { SetEntitiesMessage } from "../../components/networking/networkMessageValidation"
 
 type On = (
   event: string,
@@ -24,10 +26,13 @@ export const GeckoServerContext = createContext<GeckoServerContextType>({
 // do: we need to figure out how to make sure we only instantiate the server once,
 //     but always get up-to-date channels and entities
 export const GeckoServerProvider = (props: PropsWithChildren) => {
-  const { entities } = useEntities()
   const [initialized, setInitialized] = useState(false)
   const [io, setIo] = useState<GeckosServer | null>(null)
   const [channels, setChannels] = useState<ServerChannel[]>([])
+
+  const entities = useEntities()
+  const addOrUpdateEntity = useAddOrUpdateEntity()
+  const removeEntity = useRemoveEntity()
 
   useEffect(() => {
     if (io) return
@@ -39,26 +44,35 @@ export const GeckoServerProvider = (props: PropsWithChildren) => {
     newIo.onConnection((channel) => {
       if (!channel.id) return
 
+      console.log("new connection", channel.id, channels, entities)
+
       setChannels((prevChannels) => [...prevChannels.filter((c) => c.id !== channel.id), channel])
 
-      if (!entities[channel.id]) {
-        entities[channel.id] = {
-          channelId: channel.id,
-          position: [0, 0, 0],
-          rotationY: 0,
-          path: [],
-        }
+      const state: EntityState = {
+        id: channel.id,
+        position: [0, 0, 0],
+        rotationY: 0,
+        path: [],
       }
 
-      channel.emit("setEntities", {
-        entities,
-      })
+      addOrUpdateEntity(state)
+
+      const message: SetEntitiesMessage = {
+        entities: Object.values(entities).map((entity) => ({
+          channelId: entity.id,
+          position: entity.ref.current?.position.toArray() || [0, 0, 0],
+          rotationY: entity.ref.current?.rotation.y || 0,
+          path: entity.path,
+        })),
+      }
+
+      channel.emit("setEntities", message)
 
       channel.onDisconnect(() => {
         newIo.emit("player disconnected", { channelId: channel.id })
-        if (channel.id && entities[channel.id]) {
-          delete entities[channel.id]
-        }
+
+        if (channel.id) removeEntity(channel.id)
+
         setChannels((prevChannels) => prevChannels.filter((c) => c.id !== channel.id))
       })
 
@@ -72,7 +86,7 @@ export const GeckoServerProvider = (props: PropsWithChildren) => {
 
     setIo(newIo)
     setInitialized(true)
-  }, [channels, entities, io])
+  }, [channels, entities, io, removeEntity, addOrUpdateEntity])
 
   if (!initialized || !io || !channels) return null
 
