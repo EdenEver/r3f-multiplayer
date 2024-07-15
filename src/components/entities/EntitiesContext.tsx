@@ -3,24 +3,45 @@ import { createContext, createRef, PropsWithChildren, useCallback, useState } fr
 import { Group } from "three"
 
 type EntitiesContextType = {
-  entities: Record<string, Entity>
+  __getEntitiesRaw: () => Record<string, Entity>
+  getEntityIds: () => string[]
   addOrUpdateEntity: (state: EntityState) => void
   removeEntity: (id: string) => void
   updatedAt: number
 }
 
 export const EntitiesContext = createContext<EntitiesContextType>({
-  entities: {},
+  __getEntitiesRaw: () => ({}),
+  getEntityIds: () => [],
   addOrUpdateEntity: () => {},
   removeEntity: () => {},
-  updatedAt: 0
+  updatedAt: 0,
 })
 
-// do: don't expose states directly, use get / set
+const createStartingEntities = () => {
+  const entities: Record<string, Entity> = {}
 
+  // seems like instancing is not working - do: fix this!
+  for (let i = 0; i < 10; i++) {
+    const entity: Entity = {
+      // uuid
+      id: Math.random().toString(36).substring(7),
+      action: "Idle",
+      path: [],
+      ref: createRef<Group>(),
+    }
+
+    entities[entity.id] = entity
+  }
+
+  return entities
+}
+
+// NOTE(Alan): Future improvement: Keep a separate list of entity ids to avoid iterating over the entities object
+//             We only want to access the entity when we actually need it
 export const EntitiesProvider = (props: PropsWithChildren) => {
   const [updatedAt, setUpdatedAt] = useState(0)
-  const [entities, setEntities] = useState<Record<string, Entity>>({})
+  const [entities, setEntities] = useState<Record<string, Entity>>(createStartingEntities())
 
   const addOrUpdateEntity = useCallback((state: EntityState) => {
     const { id, action, position, rotationY, path } = state
@@ -33,12 +54,12 @@ export const EntitiesProvider = (props: PropsWithChildren) => {
           id: id,
           path: path ?? [],
           action: "Idle",
-          ref: createRef<Group>(), // how to set position in this case?
+          ref: createRef<Group>(),
         }
       } else {
         if (path) entities[id].path = path
         if (action) entities[id].action = action
-        
+
         if (entities[id].ref.current) {
           if (position) entities[id].ref.current.position.set(...position)
           if (rotationY) entities[id].ref.current.rotation.y = rotationY
@@ -62,13 +83,18 @@ export const EntitiesProvider = (props: PropsWithChildren) => {
     setUpdatedAt(Date.now())
   }, [])
 
+  const __getEntitiesRaw = useCallback(() => entities, [entities])
+
+  const getEntityIds = useCallback(() => Object.keys(entities), [entities])
+
   return (
     <EntitiesContext.Provider
       value={{
-        entities,
+        __getEntitiesRaw,
+        getEntityIds,
         addOrUpdateEntity,
         removeEntity,
-        updatedAt
+        updatedAt,
       }}
     >
       {props.children}

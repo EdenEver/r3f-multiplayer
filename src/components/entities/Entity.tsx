@@ -3,6 +3,7 @@ import { Model as Knight, KnightActionName } from "./Knight"
 import { OnlyClient } from "../OnlyClient"
 import { EntityState } from "./entity-state/EntityState"
 import { useMemo } from "react"
+import { useEntity } from "./entityHooks"
 
 type Props = {
   entity: EntityType
@@ -38,7 +39,7 @@ type Props = {
  */
 
 // do we need to separate player from rest of entities? Makes sense
-export const Entity = ({ entity }: Props) => {
+const Entity = ({ entity }: Props) => {
   const action: KnightActionName = useMemo(() => {
     if (!entity?.action) return "Idle"
 
@@ -55,7 +56,7 @@ export const Entity = ({ entity }: Props) => {
     <>
       <group ref={entity.ref} position={entity.ref.current?.position ?? [0, 0, 0]}>
         <OnlyClient>
-          <Knight action={action} asShadow />
+          {/* <Knight action={action} asShadow /> */}
           <Knight action={action} />
         </OnlyClient>
 
@@ -64,3 +65,13 @@ export const Entity = ({ entity }: Props) => {
     </>
   )
 }
+
+const EntityWrapper = ({ id }: { id: string }) => {
+  const entity = useEntity(id)
+
+  if (!entity) return null
+
+  return <Entity entity={entity} />
+}
+
+export { EntityWrapper as Entity }

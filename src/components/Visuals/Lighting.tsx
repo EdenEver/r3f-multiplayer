@@ -4,15 +4,12 @@ import { Group } from "three"
 
 import { useFrame } from "@react-three/fiber"
 import { Environment } from "@react-three/drei"
-import { useRerenderOnMount } from "./utils/useRerenderOnMount"
-import { useOwnEntity } from "./entities/entityHooks"
+import { useOwnEntity } from "../entities/entityHooks"
 
-const shadowMapSize = 2048
+const shadowMapSize = 4096 // NOTE(Alan): Need large shadow map size for high quality shadows - research this
 const shadowCameraSize = 75
 
 export const Lighting = () => {
-  useRerenderOnMount()
-
   const entity = useOwnEntity()
 
   const lightTarget = useRef(new Group())
@@ -25,9 +22,6 @@ export const Lighting = () => {
 
   return (
     <>
-      {/* <ambientLight intensity={1} rotation-x={5} /> */}
-      {/* <hemisphereLight intensity={1} groundColor={"#080820"} position={[0, 5, 0]} /> */}
-
       <group ref={lightTarget}>
         <directionalLight
           color="#FFE"
@@ -46,7 +40,7 @@ export const Lighting = () => {
           shadow-camera-bottom={-shadowCameraSize}
         />
 
-        <Environment preset="forest" environmentIntensity={0.5} />
+        <Environment preset="forest" environmentIntensity={0.25} />
       </group>
     </>
   )

@@ -2,7 +2,7 @@ import * as THREE from "three"
 import { NavMeshQuery } from "recast-navigation"
 import { ThreeEvent } from "@react-three/fiber"
 import { init as initRecast } from "@recast-navigation/core"
-import { Capsule, Plane } from "@react-three/drei"
+import { Capsule, Instance, Plane } from "@react-three/drei"
 import { suspend } from "suspend-react"
 
 // do: we don't want this circular dependency of the parent component importing the child component
@@ -10,7 +10,7 @@ import { suspend } from "suspend-react"
 import { NavigationMesh, navmesh } from "./navigation/NavigationMesh"
 import { Entity } from "./entities/Entity"
 import { useGeckosClient } from "../client-components/helpers/useGeckosClient"
-import { useEntities, useOwnEntity, useAddOrUpdateEntity } from "./entities/entityHooks"
+import { useEntityIds, useOwnEntity, useAddOrUpdateEntity } from "./entities/entityHooks"
 import { ServerComponent } from "../server-components/helpers/ServerComponent"
 import { ClientComponent } from "../client-components/helpers/ClientComponent"
 import { Path, PathMessage } from "r3f-multiplayer"
@@ -26,7 +26,7 @@ const Scene = ({ randomSeed }: SceneProps) => {
   const client = useGeckosClient()
 
   const entity = useOwnEntity()
-  const entities = useEntities()
+  const entityIds = useEntityIds()
   const addOrUpdateEntity = useAddOrUpdateEntity()
 
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
@@ -90,17 +90,19 @@ const Scene = ({ randomSeed }: SceneProps) => {
           <meshStandardMaterial color="#252" />
         </Plane>
 
-        <Capsule castShadow receiveShadow args={[2, 4, 8, 32]} position={[10, 1, 0]} rotation={[
-          -Math.PI / 10,
-          0,
-          -Math.PI / 10,
-        ]}>
+        <Capsule
+          castShadow
+          receiveShadow
+          args={[2, 4, 8, 32]}
+          position={[10, 1, 0]}
+          rotation={[-Math.PI / 10, 0, -Math.PI / 10]}
+        >
           <meshStandardMaterial color="#b0b" />
         </Capsule>
       </NavigationMesh>
 
-      {Object.entries(entities).map(([key, entity]) => (
-        <Entity key={key} entity={entity} />
+      {entityIds.map((id) => (
+        <Entity key={id} id={id} />
       ))}
 
       <ServerComponent component="ServerEntityMovement" entity={entity} />

@@ -5,13 +5,25 @@ import { useGeckosClient } from "../../client-components/helpers/useGeckosClient
 import { EntitiesContext } from "./EntitiesContext"
 
 export const useEntities = () => {
-  const { entities } = useContext(EntitiesContext)
+  const { __getEntitiesRaw } = useContext(EntitiesContext)
+
+  const entities = useMemo(() => __getEntitiesRaw(), [__getEntitiesRaw])
 
   return entities
 }
 
+export const useEntityIds = () => {
+  const { getEntityIds } = useContext(EntitiesContext)
+
+  const ids = useMemo(() => getEntityIds(), [getEntityIds])
+
+  return ids
+}
+
 export const useEntity = (id?: EntityId): Entity | null => {
-  const { entities } = useContext(EntitiesContext)
+  const { __getEntitiesRaw } = useContext(EntitiesContext)
+
+  const entities = __getEntitiesRaw()
 
   const entity = useMemo(() => {
     if (!id) return null

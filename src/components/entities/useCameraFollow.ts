@@ -11,7 +11,7 @@ export const useCameraFollow = (startPosition: Vector3 = new Vector3(), ref: Gro
   useRerenderOnEntitiesUpdate()
 
   const { camera } = useThree()
-  const cameraTarget = useRef<Vector3>(startPosition)
+  const cameraTarget = useRef<Vector3>(startPosition.clone().add(new Vector3(0, 0.2, 0)))
 
   useFrame(() => {
     if (!ref) return
@@ -20,7 +20,6 @@ export const useCameraFollow = (startPosition: Vector3 = new Vector3(), ref: Gro
     ref.getWorldPosition(cameraTargetPosition)
 
     cameraTarget.current.lerp(cameraTargetPosition, 0.1)
-    cameraTarget.current.y += 0.2
     camera.position.copy(cameraTarget.current).add(CAMERA_OFFSET)
     camera.lookAt(cameraTarget.current)
   })

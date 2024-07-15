@@ -35,7 +35,8 @@ const useChannelSubscriptions = () => {
 // do: we need to figure out how to make sure we only instantiate the server once,
 //     but always get up-to-date channels and entities
 export const GeckosServerProvider = (props: PropsWithChildren) => {
-  const [initialized, setInitialized] = useState(false)
+  const initializing = useRef(false)
+  const initialized = useRef(false)
   const [io, setIo] = useState<GeckosServer | null>(null)
   const [channels, setChannels] = useState<ServerChannel[]>([])
 
@@ -46,7 +47,9 @@ export const GeckosServerProvider = (props: PropsWithChildren) => {
   const channelSubscriptions = useChannelSubscriptions()
 
   useEffect(() => {
-    if (io) return
+    if (io || initialized.current || initializing.current) return
+
+    initializing.current = true
 
     const newIo = geckos()
 
@@ -98,10 +101,11 @@ export const GeckosServerProvider = (props: PropsWithChildren) => {
     })
 
     setIo(newIo)
-    setInitialized(true)
+    initialized.current = true
+    initializing.current = false
   }, [channels, entities, io, removeEntity, addOrUpdateEntity, channelSubscriptions])
 
-  if (!initialized || !io || !channels) return null
+  if (initializing.current || !initialized.current || !io || !channels) return null
 
   const emit: GeckosServer["emit"] = (eventName, data) => io.emit(eventName, data)
 
