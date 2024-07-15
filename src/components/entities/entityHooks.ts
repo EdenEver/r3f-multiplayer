@@ -1,4 +1,4 @@
-import { MutableRefObject, useContext, useEffect, useMemo } from "react"
+import { MutableRefObject, useCallback, useContext, useEffect, useMemo } from "react"
 import { Group } from "three"
 import { Entity, EntityId } from "r3f-multiplayer"
 import { useGeckosClient } from "../../client-components/helpers/useGeckosClient"
@@ -59,4 +59,25 @@ export const useRerenderOnEntitiesUpdate = () => {
   useEffect(() => {}, [updatedAt])
 
   return updatedAt
+}
+
+export const useEntityAction = (id?: EntityId) => {
+  const entity = useEntity(id)
+  const updateEntity = useAddOrUpdateEntity()
+
+  const setAction = useCallback(
+    (action: Entity["action"]) => {
+      if (!entity) return
+
+      updateEntity({
+        id: entity.id,
+        action,
+      })
+    },
+    [entity, updateEntity]
+  )
+
+  const action = useMemo(() => entity?.action ?? "Idle", [entity?.action])
+
+  return { action, setAction }
 }

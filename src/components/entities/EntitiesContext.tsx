@@ -23,7 +23,7 @@ export const EntitiesProvider = (props: PropsWithChildren) => {
   const [entities, setEntities] = useState<Record<string, Entity>>({})
 
   const addOrUpdateEntity = useCallback((state: EntityState) => {
-    const { id, position, rotationY, path } = state
+    const { id, action, position, rotationY, path } = state
 
     if (!id) return
 
@@ -32,11 +32,13 @@ export const EntitiesProvider = (props: PropsWithChildren) => {
         entities[id] = {
           id: id,
           path: path ?? [],
+          action: "Idle",
           ref: createRef<Group>(), // how to set position in this case?
         }
       } else {
         if (path) entities[id].path = path
-
+        if (action) entities[id].action = action
+        
         if (entities[id].ref.current) {
           if (position) entities[id].ref.current.position.set(...position)
           if (rotationY) entities[id].ref.current.rotation.y = rotationY

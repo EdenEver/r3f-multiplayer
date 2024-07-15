@@ -1,6 +1,8 @@
-import { Capsule } from "@react-three/drei"
-import { useUpdateUnitOnPath } from "../useUpdateUnitOnPath"
 import { Entity as EntityType } from "r3f-multiplayer"
+import { Model as Knight, KnightActionName } from "./Knight"
+import { OnlyClient } from "../OnlyClient"
+import { EntityState } from "./entity-state/EntityState"
+import { useMemo } from "react"
 
 type Props = {
   entity: EntityType
@@ -37,7 +39,14 @@ type Props = {
 
 // do we need to separate player from rest of entities? Makes sense
 export const Entity = ({ entity }: Props) => {
-  useUpdateUnitOnPath(entity)
+  const action: KnightActionName = useMemo(() => {
+    if (!entity?.action) return "Idle"
+
+    if (entity.action === "Running") return "Running_A"
+    if (entity.action === "Attacking") return "1H_Melee_Attack_Chop"
+
+    return "Idle"
+  }, [entity.action])
 
   if (!entity) return null
   if (!entity.ref) return null
@@ -45,9 +54,12 @@ export const Entity = ({ entity }: Props) => {
   return (
     <>
       <group ref={entity.ref} position={entity.ref.current?.position ?? [0, 0, 0]}>
-        <Capsule args={[1, 2]} position={[0, 1.5, 0]}>
-          <meshStandardMaterial color="#f00" />
-        </Capsule>
+        <OnlyClient>
+          <Knight action={action} asShadow />
+          <Knight action={action} />
+        </OnlyClient>
+
+        <EntityState entity={entity} />
       </group>
     </>
   )

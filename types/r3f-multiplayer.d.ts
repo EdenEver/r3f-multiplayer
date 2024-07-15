@@ -20,6 +20,7 @@ declare module "r3f-multiplayer" {
     id: EntityId
     path: Path
     ref: MutableRefObject<Group | null>
+    action: "Idle" | "Running" | "Attacking"
   }
 
   type EntityMessage = {
@@ -33,6 +34,7 @@ declare module "r3f-multiplayer" {
     id: EntityId
     position?: Position
     rotationY?: number
+    action?: Entity["action"]
     path?: Path
   }
 }

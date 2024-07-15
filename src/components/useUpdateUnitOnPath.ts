@@ -25,12 +25,12 @@ const useRefs = () => {
   }
 }
 
-export const useUpdateUnitOnPath = (entity: Entity) => {
+export const useUpdateUnitOnPath = (entity: Entity | null) => {
   const { next, direction, vFrom, vTo, nextPosition, turnDirection } = useRefs()
   const addOrUpdateEntity = useAddOrUpdateEntity()
 
   useFrame((_, delta) => {
-    if (!entity.ref.current) return
+    if (!entity?.ref.current) return
 
     const ref = entity.ref.current
 

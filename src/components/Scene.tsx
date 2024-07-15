@@ -2,7 +2,7 @@ import * as THREE from "three"
 import { NavMeshQuery } from "recast-navigation"
 import { ThreeEvent } from "@react-three/fiber"
 import { init as initRecast } from "@recast-navigation/core"
-import { Plane } from "@react-three/drei"
+import { Capsule, Plane } from "@react-three/drei"
 import { suspend } from "suspend-react"
 
 // do: we don't want this circular dependency of the parent component importing the child component
@@ -50,13 +50,13 @@ const Scene = ({ randomSeed }: SceneProps) => {
 
     // NOTE(Alan): Remove close to entity paths to allow repeated clicks with staggered movement
     while (true) {
-      if (path?.length < 2) break
+      if (newPath?.length < 2) break
 
-      const next = new Vector3(path[0].x, path[0].y, path[0].z)
+      const next = new Vector3(...newPath[0])
 
       if (startPosition.distanceTo(next) >= 0.1) break
 
-      path.shift()
+      newPath.shift()
     }
 
     const message: PathMessage = {
@@ -78,17 +78,25 @@ const Scene = ({ randomSeed }: SceneProps) => {
   return (
     <>
       <NavigationMesh randomSeed={randomSeed} onClick={onPointerUp}>
-        <Plane args={[50, 75]} position-x={-50} rotation={[-Math.PI / 2, 0, 0]}>
-          <meshStandardMaterial color="#363" />
+        <Plane receiveShadow args={[50, 75]} position-x={-50} rotation={[-Math.PI / 2, 0, 0]}>
+          <meshStandardMaterial color="#252" />
         </Plane>
 
-        <Plane args={[50, 25]} position-x={0} rotation={[-Math.PI / 2, 0, 0]}>
-          <meshStandardMaterial color="#363" />
+        <Plane receiveShadow args={[50, 25]} position-x={0} rotation={[-Math.PI / 2, 0, 0]}>
+          <meshStandardMaterial color="#252" />
         </Plane>
 
-        <Plane args={[50, 75]} position-x={50} rotation={[-Math.PI / 2, 0, 0]}>
-          <meshStandardMaterial color="#363" />
+        <Plane receiveShadow args={[50, 75]} position-x={50} rotation={[-Math.PI / 2, 0, 0]}>
+          <meshStandardMaterial color="#252" />
         </Plane>
+
+        <Capsule castShadow receiveShadow args={[2, 4, 8, 32]} position={[10, 1, 0]} rotation={[
+          -Math.PI / 10,
+          0,
+          -Math.PI / 10,
+        ]}>
+          <meshStandardMaterial color="#b0b" />
+        </Capsule>
       </NavigationMesh>
 
       {Object.entries(entities).map(([key, entity]) => (

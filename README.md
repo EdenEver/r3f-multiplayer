@@ -23,6 +23,7 @@ A project showing how to do a multiplayer game with react-three-fiber and geckos
 
 * There is a consistent problem with having everything being refs, this is a core issue, need to figure out how to keep things that need to be updated on a per-frame basis as refs, but everything else as state.
   * we probably need to move player out of the entities context
+  * there is no problem with re-rendering components somewhat often, just not per-frame
   
 ## notes
 
