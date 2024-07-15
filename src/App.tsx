@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Environment, OrbitControls } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Scene } from "./components/Scene"
+import { CAMERA_NEAR, CAMERA_OFFSET, CAMERA_ZOOM } from "./components/constants"
 
 const randomSeed = Number.parseInt(import.meta.env.RANDOM_SEED ?? "42")
 
@@ -23,15 +24,20 @@ function App() {
 
       <Canvas
         className="w-screen h-screen"
+        style={{ background: "#222", height: "100%" }}
+        shadows
+        orthographic
         camera={{
-          position: [25, 50, 25],
+          zoom: CAMERA_ZOOM / 4,
+          near: CAMERA_NEAR,
+          position: CAMERA_OFFSET,
         }}
       >
         <Scene randomSeed={randomSeed} serverOnly={serverOnly} />
 
         <Environment preset="forest" />
 
-        <OrbitControls />
+        <OrbitControls enableRotate={false} />
       </Canvas>
     </>
   )

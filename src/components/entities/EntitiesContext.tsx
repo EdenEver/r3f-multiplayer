@@ -6,17 +6,20 @@ type EntitiesContextType = {
   entities: Record<string, Entity>
   addOrUpdateEntity: (state: EntityState) => void
   removeEntity: (id: string) => void
+  updatedAt: number
 }
 
 export const EntitiesContext = createContext<EntitiesContextType>({
   entities: {},
   addOrUpdateEntity: () => {},
   removeEntity: () => {},
+  updatedAt: 0
 })
 
 // do: don't expose states directly, use get / set
 
 export const EntitiesProvider = (props: PropsWithChildren) => {
+  const [updatedAt, setUpdatedAt] = useState(0)
   const [entities, setEntities] = useState<Record<string, Entity>>({})
 
   const addOrUpdateEntity = useCallback((state: EntityState) => {
@@ -42,6 +45,8 @@ export const EntitiesProvider = (props: PropsWithChildren) => {
 
       return entities
     })
+
+    setUpdatedAt(Date.now())
   }, [])
 
   const removeEntity = useCallback((id: EntityId) => {
@@ -51,6 +56,8 @@ export const EntitiesProvider = (props: PropsWithChildren) => {
       delete entities[id]
       return entities
     })
+
+    setUpdatedAt(Date.now())
   }, [])
 
   return (
@@ -59,6 +66,7 @@ export const EntitiesProvider = (props: PropsWithChildren) => {
         entities,
         addOrUpdateEntity,
         removeEntity,
+        updatedAt
       }}
     >
       {props.children}

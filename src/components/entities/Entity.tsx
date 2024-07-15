@@ -35,6 +35,7 @@ type Props = {
  * do: add refs to the context, use that on the <group> element
  */
 
+// do we need to separate player from rest of entities? Makes sense
 export const Entity = ({ entity }: Props) => {
   useUpdateUnitOnPath(entity)
 

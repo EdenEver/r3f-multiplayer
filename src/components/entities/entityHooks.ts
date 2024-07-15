@@ -1,4 +1,4 @@
-import { MutableRefObject, useContext, useMemo } from "react"
+import { MutableRefObject, useContext, useEffect, useMemo } from "react"
 import { Group } from "three"
 import { Entity, EntityId } from "r3f-multiplayer"
 import { useGeckosClient } from "../../client-components/helpers/useGeckosClient"
@@ -51,4 +51,12 @@ export const useOwnEntity = (): Entity | null => {
   const entity = useEntity(channelId)
 
   return entity
+}
+
+export const useRerenderOnEntitiesUpdate = () => {
+  const { updatedAt } = useContext(EntitiesContext)
+
+  useEffect(() => {}, [updatedAt])
+
+  return updatedAt
 }

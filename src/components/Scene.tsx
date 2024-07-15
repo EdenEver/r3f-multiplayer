@@ -15,6 +15,7 @@ import { ServerComponent } from "../server-components/helpers/ServerComponent"
 import { ClientComponent } from "../client-components/helpers/ClientComponent"
 import { Path, PathMessage } from "r3f-multiplayer"
 import { Vector3 } from "three"
+import { useCameraFollow } from "./entities/useCameraFollow"
 
 type SceneProps = {
   randomSeed: number
@@ -71,6 +72,8 @@ const Scene = ({ randomSeed }: SceneProps) => {
 
     client.emit("setPath", message)
   }
+
+  useCameraFollow(entity?.ref.current?.position, entity?.ref.current)
 
   return (
     <>
