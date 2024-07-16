@@ -6,7 +6,7 @@ import {
   isValidSetEntitiesMessage,
 } from "../../components/networking/networkMessageValidation"
 import { useRemoveEntity, useAddOrUpdateEntity } from "../../components/entities/entityHooks"
-import { EntityState } from "r3f-multiplayer"
+import { FullEntityState } from "r3f-multiplayer"
 
 type GeckosClientContextType = {
   channelId: ChannelId
@@ -53,11 +53,12 @@ export const GeckosClientProvider = (props: PropsWithChildren) => {
       newChannel.on("player connected", (data) => {
         if (!isValidPlayerConnectedMessage(data)) return
 
-        const state: EntityState = {
+        const state: FullEntityState = {
           id: data.channelId,
           position: data.position,
           rotationY: data.rotationY,
           path: data.path,
+          action: "Idle",
         }
 
         addOrUpdateEntity(state)
@@ -68,11 +69,12 @@ export const GeckosClientProvider = (props: PropsWithChildren) => {
       if (!isValidSetEntitiesMessage(data)) return
 
       Object.values(data.entities).forEach((entity) => {
-        const state: EntityState = {
+        const state: FullEntityState = {
           id: entity.channelId,
           position: entity.position,
           rotationY: entity.rotationY,
           path: entity.path,
+          action: "Idle",
         }
 
         addOrUpdateEntity(state)
@@ -93,6 +95,7 @@ export const GeckosClientProvider = (props: PropsWithChildren) => {
         position: [0, 0, 0],
         rotationY: 0,
         path: [],
+        action: "Idle",
       })
     }
 

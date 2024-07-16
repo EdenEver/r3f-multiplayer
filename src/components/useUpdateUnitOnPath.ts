@@ -3,7 +3,7 @@ import { useRef } from "react"
 import { Quaternion, Vector3 } from "three"
 import { useFrame } from "@react-three/fiber"
 import { Entity } from "r3f-multiplayer"
-import { useAddOrUpdateEntity } from "./entities/entityHooks"
+import { useUpdateEntity } from "./entities/entityHooks"
 
 const PLAYER_SPEED = 8
 
@@ -27,7 +27,7 @@ const useRefs = () => {
 
 export const useUpdateUnitOnPath = (entity: Entity | null) => {
   const { next, direction, vFrom, vTo, nextPosition, turnDirection } = useRefs()
-  const addOrUpdateEntity = useAddOrUpdateEntity()
+  const updateEntity = useUpdateEntity()
 
   useFrame((_, delta) => {
     if (!entity?.ref.current) return
@@ -54,7 +54,7 @@ export const useUpdateUnitOnPath = (entity: Entity | null) => {
     ref.position.lerp(nextPosition, 1.1)
 
     if (ref.position.distanceTo(next) < 0.1) {
-      addOrUpdateEntity({
+      updateEntity({
         id: entity.id,
         path: entity.path.length > 0 ? entity.path.slice(1) : [],
       })

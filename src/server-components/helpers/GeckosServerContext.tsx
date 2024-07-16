@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useEffect, useRef, useState } from "react"
 import geckos, { ChannelId, Data, GeckosServer, ServerChannel } from "@geckos.io/server"
-import { EntityState } from "r3f-multiplayer"
+import { FullEntityState } from "r3f-multiplayer"
 import { useEntities, useRemoveEntity, useAddOrUpdateEntity } from "../../components/entities/entityHooks"
 import { SetEntitiesMessage } from "../../components/networking/networkMessageValidation"
 
@@ -60,13 +60,15 @@ export const GeckosServerProvider = (props: PropsWithChildren) => {
 
       setChannels((prevChannels) => [...prevChannels.filter((c) => c.id !== channel.id), channel])
 
-      const state: EntityState = {
+      const state: FullEntityState = {
         id: channel.id,
         position: [0, 0, 0],
         rotationY: 0,
         path: [],
+        action: "Idle",
       }
 
+      // do: should we add the entity on "player connected" event instead to get data from the client?
       addOrUpdateEntity(state)
 
       const message: SetEntitiesMessage = {

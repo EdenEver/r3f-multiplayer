@@ -1,6 +1,6 @@
 import { MutableRefObject, useCallback, useContext, useEffect, useMemo } from "react"
 import { Group } from "three"
-import { Entity, EntityId } from "r3f-multiplayer"
+import { Entity, EntityId, FullEntityState } from "r3f-multiplayer"
 import { useGeckosClient } from "../../client-components/helpers/useGeckosClient"
 import { EntitiesContext } from "./EntitiesContext"
 
@@ -34,8 +34,31 @@ export const useEntity = (id?: EntityId): Entity | null => {
   return entity
 }
 
+export const useUpdateEntity = () => {
+  const { updateEntity } = useContext(EntitiesContext)
+
+  return updateEntity
+}
+
+export const useAddEntity = () => {
+  const { addEntity } = useContext(EntitiesContext)
+
+  return addEntity
+}
+
 export const useAddOrUpdateEntity = () => {
-  const { addOrUpdateEntity } = useContext(EntitiesContext)
+  const { __getEntitiesRaw, addEntity, updateEntity } = useContext(EntitiesContext)
+
+  const addOrUpdateEntity = useCallback(
+    (state: FullEntityState) => {
+      if (__getEntitiesRaw()[state.id]) {
+        updateEntity(state)
+      } else {
+        addEntity(state)
+      }
+    },
+    [__getEntitiesRaw, addEntity, updateEntity]
+  )
 
   return addOrUpdateEntity
 }
@@ -75,7 +98,7 @@ export const useRerenderOnEntitiesUpdate = () => {
 
 export const useEntityAction = (id?: EntityId) => {
   const entity = useEntity(id)
-  const updateEntity = useAddOrUpdateEntity()
+  const updateEntity = useUpdateEntity()
 
   const setAction = useCallback(
     (action: Entity["action"]) => {

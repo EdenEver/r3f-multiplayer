@@ -30,11 +30,18 @@ declare module "r3f-multiplayer" {
     path: Path
   }
 
-  type EntityState = {
+  type EntityBaseState = {
     id: EntityId
-    position?: Position
-    rotationY?: number
-    action?: Entity["action"]
-    path?: Path
   }
+
+  type EntityStateData = {
+    position: Position
+    rotationY: number
+    action: Entity["action"]
+    path: Path
+  }
+
+  type PartialEntityState = EntityBaseState & Partial<EntityStateData>
+
+  type FullEntityState = EntityBaseState & EntityStateData
 }

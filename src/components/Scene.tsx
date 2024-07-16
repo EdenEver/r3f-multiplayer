@@ -10,7 +10,7 @@ import { suspend } from "suspend-react"
 import { NavigationMesh, navmesh } from "./navigation/NavigationMesh"
 import { Entity } from "./entities/Entity"
 import { useGeckosClient } from "../client-components/helpers/useGeckosClient"
-import { useEntityIds, useOwnEntity, useAddOrUpdateEntity } from "./entities/entityHooks"
+import { useEntityIds, useOwnEntity, useUpdateEntity } from "./entities/entityHooks"
 import { ServerComponent } from "../server-components/helpers/ServerComponent"
 import { ClientComponent } from "../client-components/helpers/ClientComponent"
 import { Path, PathMessage } from "r3f-multiplayer"
@@ -27,7 +27,7 @@ const Scene = ({ randomSeed }: SceneProps) => {
 
   const entity = useOwnEntity()
   const entityIds = useEntityIds()
-  const addOrUpdateEntity = useAddOrUpdateEntity()
+  const updateEntity = useUpdateEntity()
 
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (e.button !== THREE.MOUSE.LEFT) return
@@ -65,7 +65,7 @@ const Scene = ({ randomSeed }: SceneProps) => {
       path: newPath,
     }
 
-    addOrUpdateEntity({
+    updateEntity({
       id: entity.id,
       path: newPath,
     })

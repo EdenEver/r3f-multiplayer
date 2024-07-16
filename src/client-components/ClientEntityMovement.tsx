@@ -1,12 +1,12 @@
 import { useEffect } from "react"
 import { useGeckosClient } from "./helpers/useGeckosClient"
 import { isValidPathMessage } from "../components/networking/networkMessageValidation"
-import { useAddOrUpdateEntity } from "../components/entities/entityHooks"
+import { useUpdateEntity } from "../components/entities/entityHooks"
 
 // do: rename, this does not handle movement, but server/client path communication
 const ClientEntityMovement = () => {
   const { on } = useGeckosClient()
-  const addOrUpdateEntity = useAddOrUpdateEntity()
+  const updateEntity = useUpdateEntity()
 
   useEffect(() => {
     on("setPath", (data) => {
@@ -20,9 +20,9 @@ const ClientEntityMovement = () => {
 
       if (!isValidPathMessage(data)) return
 
-      addOrUpdateEntity(args)
+      updateEntity(args)
     })
-  }, [on, addOrUpdateEntity])
+  }, [on, updateEntity])
 
   return null
 }

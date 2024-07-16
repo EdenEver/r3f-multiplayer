@@ -3,7 +3,7 @@ import { Group } from "three"
 import { useGeckosServer } from "./helpers/useGeckosServer"
 import { isValidPathMessage } from "../components/networking/networkMessageValidation"
 import { PathMessage } from "r3f-multiplayer"
-import { useAddOrUpdateEntity } from "../components/entities/entityHooks"
+import { useUpdateEntity } from "../components/entities/entityHooks"
 
 type Props = {
   entity: React.MutableRefObject<Group | null>
@@ -15,7 +15,7 @@ type Props = {
 
 const ServerEntityMovement = ({ entity }: Props) => {
   const { on, emit } = useGeckosServer()
-  const addOrUpdateEntity = useAddOrUpdateEntity()
+  const updateEntity = useUpdateEntity()
 
   useEffect(() => {
     on("setPath", (io, _channel, data) => {
@@ -29,7 +29,7 @@ const ServerEntityMovement = ({ entity }: Props) => {
         path: data.path,
       }
 
-      addOrUpdateEntity(args)
+      updateEntity(args)
 
       const message: PathMessage = {
         channelId: data.channelId,
@@ -39,7 +39,7 @@ const ServerEntityMovement = ({ entity }: Props) => {
 
       io.emit("setPath", message)
     })
-  }, [emit, entity, on, addOrUpdateEntity])
+  }, [emit, entity, on, updateEntity])
 
   return null
 }
