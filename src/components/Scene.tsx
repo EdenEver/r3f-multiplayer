@@ -2,7 +2,7 @@ import * as THREE from "three"
 import { NavMeshQuery } from "recast-navigation"
 import { ThreeEvent } from "@react-three/fiber"
 import { init as initRecast } from "@recast-navigation/core"
-import { Capsule, Instance, Plane } from "@react-three/drei"
+import { Capsule, Plane } from "@react-three/drei"
 import { suspend } from "suspend-react"
 
 // do: we don't want this circular dependency of the parent component importing the child component
@@ -28,6 +28,8 @@ const Scene = ({ randomSeed }: SceneProps) => {
   const entity = useOwnEntity()
   const entityIds = useEntityIds()
   const updateEntity = useUpdateEntity()
+
+  console.log(entityIds)
 
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (e.button !== THREE.MOUSE.LEFT) return

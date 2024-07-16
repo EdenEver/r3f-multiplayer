@@ -1,5 +1,5 @@
 import geckoss, { ChannelId, ClientChannel } from "@geckos.io/client"
-import { createContext, PropsWithChildren, useEffect, useState } from "react"
+import { createContext, PropsWithChildren, useEffect, useRef, useState } from "react"
 import {
   isValidPlayerConnectedMessage,
   isValidPlayerDisconnectedMessage,
@@ -21,19 +21,19 @@ export const GeckosClientContext = createContext<GeckosClientContextType>({
 })
 
 export const GeckosClientProvider = (props: PropsWithChildren) => {
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [connected, setConnected] = useState(false)
+  const connecting = useRef(false)
+  const connected = useRef(false)
+
   const [channel, setChannel] = useState<ClientChannel | null>(null)
 
   const addOrUpdateEntity = useAddOrUpdateEntity()
   const removeEntity = useRemoveEntity()
 
-  // const ctx = useContext(EntitiesContext)
-
   useEffect(() => {
-    if (isConnecting || connected) return
+    if (connecting.current) return
+    connecting.current = true
 
-    setIsConnecting(true)
+    if (connected.current || channel) return
 
     const newChannel = geckoss({ port: 5544 }) // default port is 9208
 
@@ -41,14 +41,14 @@ export const GeckosClientProvider = (props: PropsWithChildren) => {
       if (error) {
         console.error(error.message)
 
-        setConnected(false)
-        setIsConnecting(false)
+        connecting.current = false
+        connected.current = false
 
         return
       }
 
-      setConnected(true)
-      setIsConnecting(false)
+      connecting.current = false
+      connected.current = true
 
       newChannel.on("player connected", (data) => {
         if (!isValidPlayerConnectedMessage(data)) return
@@ -77,6 +77,8 @@ export const GeckosClientProvider = (props: PropsWithChildren) => {
           action: "Idle",
         }
 
+        console.log("adding entity in setEntities", state)
+
         addOrUpdateEntity(state)
       })
     })
@@ -90,6 +92,8 @@ export const GeckosClientProvider = (props: PropsWithChildren) => {
     setChannel(newChannel)
 
     if (newChannel.id) {
+      console.log("adding entity in channel id", newChannel.id)
+
       addOrUpdateEntity({
         id: newChannel.id,
         position: [0, 0, 0],
@@ -100,14 +104,16 @@ export const GeckosClientProvider = (props: PropsWithChildren) => {
     }
 
     return () => {
+      if (newChannel.id) removeEntity(newChannel.id)
+
       if (channel) {
-        channel.close()
+        newChannel.close()
         setChannel(null)
       }
     }
-  }, [isConnecting, connected, channel, addOrUpdateEntity, removeEntity])
+  }, [connecting, connected, channel, addOrUpdateEntity, removeEntity])
 
-  if (!connected || !channel) return null
+  if (!connected.current || !channel) return null
 
   const emit: ClientChannel["emit"] = (eventName, data) => channel.emit(eventName, data)
 

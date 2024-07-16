@@ -40,12 +40,8 @@ export const useUpdateEntity = () => {
   return updateEntity
 }
 
-export const useAddEntity = () => {
-  const { addEntity } = useContext(EntitiesContext)
-
-  return addEntity
-}
-
+// NOTE(Alan): This is primarily meant to be used for adding entities,
+//             with a fallback to updating them if they already exist
 export const useAddOrUpdateEntity = () => {
   const { __getEntitiesRaw, addEntity, updateEntity } = useContext(EntitiesContext)
 
