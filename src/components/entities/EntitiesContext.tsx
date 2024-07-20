@@ -1,4 +1,4 @@
-import { Entity, EntityId, FullEntityState, PartialEntityState } from "r3f-multiplayer"
+import { Entity, EntityId, FullEntityState, PartialEntityState, Position } from "r3f-multiplayer"
 import { createContext, createRef, PropsWithChildren, useCallback, useState } from "react"
 import { Group } from "three"
 
@@ -19,6 +19,33 @@ export const EntitiesContext = createContext<EntitiesContextType>({
   removeEntity: () => {},
   updatedAt: 0,
 })
+
+const knights: Entity[] = Array.from({ length: 200 }, (_, i) => {
+  const ref = createRef<Group>()
+
+  const startingPosition: Position = [Math.random() * 100, 0, Math.random() * 100]
+
+  if (ref.current) {
+    ref.current.position.set(...startingPosition)
+    ref.current.rotation.y = Math.random() * Math.PI * 2
+  }
+
+  return {
+    id: `knight-${i}`,
+    startingPosition,
+    action: "Idle",
+    path: [],
+    ref,
+  }
+})
+
+// starting entities, used for testing
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _initialEntities = knights.reduce((acc, knight) => {
+  acc[knight.id] = knight
+  return acc
+}, {} as Record<string, Entity>)
 
 // NOTE(Alan): Future improvement: Keep a separate list of entity ids to avoid iterating over the entities object
 //             We only want to access the entity when we actually need it

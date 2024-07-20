@@ -18,6 +18,7 @@ declare module "r3f-multiplayer" {
 
   type Entity = {
     id: EntityId
+    startingPosition?: Position
     path: Path
     ref: MutableRefObject<Group | null>
     action: "Idle" | "Running" | "Attacking"

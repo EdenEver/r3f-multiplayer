@@ -1,9 +1,6 @@
 import { Entity as EntityType } from "r3f-multiplayer"
-import { Model as Knight, KnightActionName } from "./Knight"
-import { OnlyClient } from "../OnlyClient"
-import { EntityState } from "./entity-state/EntityState"
-import { useMemo } from "react"
-import { useEntity } from "./entityHooks"
+import { EntityState } from "../entity-state/EntityState"
+import { useEntity } from "../entityHooks"
 
 type Props = {
   entity: EntityType
@@ -40,26 +37,12 @@ type Props = {
 
 // do we need to separate player from rest of entities? Makes sense
 const Entity = ({ entity }: Props) => {
-  const action: KnightActionName = useMemo(() => {
-    if (!entity?.action) return "Idle"
-
-    if (entity.action === "Running") return "Running_A"
-    if (entity.action === "Attacking") return "1H_Melee_Attack_Chop"
-
-    return "Idle"
-  }, [entity.action])
-
   if (!entity) return null
   if (!entity.ref) return null
 
   return (
     <>
       <group ref={entity.ref} position={entity.ref.current?.position ?? [0, 0, 0]}>
-        <OnlyClient>
-          {/* <Knight action={action} asShadow /> */}
-          <Knight action={action} />
-        </OnlyClient>
-
         <EntityState entity={entity} />
       </group>
     </>

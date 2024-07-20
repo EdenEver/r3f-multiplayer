@@ -8,7 +8,7 @@ import { suspend } from "suspend-react"
 // do: we don't want this circular dependency of the parent component importing the child component
 // move to a context or something like that, just a temporary solution
 import { NavigationMesh, navmesh } from "./navigation/NavigationMesh"
-import { Entity } from "./entities/Entity"
+import { Entity } from "./entities/Entity/Entity"
 import { useGeckosClient } from "../client-components/helpers/useGeckosClient"
 import { useEntityIds, useOwnEntity, useUpdateEntity } from "./entities/entityHooks"
 import { ServerComponent } from "../server-components/helpers/ServerComponent"
@@ -16,6 +16,8 @@ import { ClientComponent } from "../client-components/helpers/ClientComponent"
 import { Path, PathMessage } from "r3f-multiplayer"
 import { Vector3 } from "three"
 import { useCameraFollow } from "./entities/useCameraFollow"
+import { OnlyClient } from "./OnlyClient"
+import { EntityModels } from "./entities/Entity/EntityModels"
 
 type SceneProps = {
   randomSeed: number
@@ -28,8 +30,6 @@ const Scene = ({ randomSeed }: SceneProps) => {
   const entity = useOwnEntity()
   const entityIds = useEntityIds()
   const updateEntity = useUpdateEntity()
-
-  console.log(entityIds)
 
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (e.button !== THREE.MOUSE.LEFT) return
@@ -81,15 +81,15 @@ const Scene = ({ randomSeed }: SceneProps) => {
     <>
       <NavigationMesh randomSeed={randomSeed} onClick={onPointerUp}>
         <Plane receiveShadow args={[50, 75]} position-x={-50} rotation={[-Math.PI / 2, 0, 0]}>
-          <meshStandardMaterial color="#252" />
+          <meshStandardMaterial color="#363" />
         </Plane>
 
         <Plane receiveShadow args={[50, 25]} position-x={0} rotation={[-Math.PI / 2, 0, 0]}>
-          <meshStandardMaterial color="#252" />
+          <meshStandardMaterial color="#363" />
         </Plane>
 
         <Plane receiveShadow args={[50, 75]} position-x={50} rotation={[-Math.PI / 2, 0, 0]}>
-          <meshStandardMaterial color="#252" />
+          <meshStandardMaterial color="#363" />
         </Plane>
 
         <Capsule
@@ -106,6 +106,10 @@ const Scene = ({ randomSeed }: SceneProps) => {
       {entityIds.map((id) => (
         <Entity key={id} id={id} />
       ))}
+
+      <OnlyClient>
+        <EntityModels />
+      </OnlyClient>
 
       <ServerComponent component="ServerEntityMovement" entity={entity} />
 

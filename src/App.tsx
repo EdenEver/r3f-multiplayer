@@ -17,7 +17,7 @@ import { OnlyClient } from "./components/OnlyClient"
 const randomSeed = Number.parseInt(import.meta.env.RANDOM_SEED ?? "42")
 
 function App() {
-  const [dpr, setDpr] = useState(1.5)
+  const [, setDpr] = useState(1.5)
   const [serverOnly, setServerOnly] = useState(false)
 
   return (
@@ -34,7 +34,7 @@ function App() {
       </div>
 
       <Canvas
-        dpr={dpr}
+        // dpr={dpr} // NOTE(Alan): This messes SA8O up
         frameloop="always"
         className="w-screen h-screen"
         style={{ background: "#222", height: "100%" }}

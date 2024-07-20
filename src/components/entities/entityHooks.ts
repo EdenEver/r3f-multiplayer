@@ -12,6 +12,14 @@ export const useEntities = () => {
   return entities
 }
 
+export const useEntitiesList = () => {
+  const { __getEntitiesRaw } = useContext(EntitiesContext)
+
+  const entities = useMemo(() => Object.values(__getEntitiesRaw()), [__getEntitiesRaw])
+
+  return entities
+}
+
 export const useEntityIds = () => {
   const { getEntityIds } = useContext(EntitiesContext)
 

@@ -24,9 +24,36 @@ A project showing how to do a multiplayer game with react-three-fiber and geckos
 * There is a consistent problem with having everything being refs, this is a core issue, need to figure out how to keep things that need to be updated on a per-frame basis as refs, but everything else as state.
   * we probably need to move player out of the entities context
   * there is no problem with re-rendering components somewhat often, just not per-frame
-  
+
+## Instanced Rendering
+
+* integrate instances rendering solution based on https://github.com/luis-herasme/instanced-skinned-mesh
+* make it a R3F component
+* fix duplicate versions of THREE imports
+* fix shader issues with MORPHTARGETS_COUNT
+* separate animation update loop from other logic (placement, etc)
+  * update animations based on distance from camera (zoom) since this is the performance bottleneck
+* make shadow casting / receiving work
+* automatic growth * 2 of instances buffer when entities > max size
+* automatic shrink if entities < max size / 2
+* make sure that the entities are not updated if they are not visible (+ visual culling) 
+
 ## notes
 
 * brave://webrtc-internals/ for debugging webrtc
 * avoid cloneDeep for three.js objects (and refs to them)
 
+## References on Performance / Instanced Rendering
+
+* https://x.com/Cody_J_Bennett/status/1802173939583463676
+* https://github.com/luis-herasme/instanced-skinned-mesh?tab=readme-ov-file
+  * https://instanced-animation.vercel.app/
+* https://github.com/wizgrav/cl2
+* https://vkguide.dev/docs/gpudriven
+* https://github.com/CodyJasonBennett/gpu-culling
+* https://github.com/mrdoob/three.js/pull/28534
+* https://github.com/mrdoob/three.js/pull/28533
+* https://github.com/mrdoob/three.js/pull/26160
+* https://codesandbox.io/s/2yfgiu?file=/whale.gltf
+* https://github.com/mrdoob/three.js/pull/22667
+* https://github.com/notifications

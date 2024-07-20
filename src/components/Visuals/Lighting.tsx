@@ -6,8 +6,12 @@ import { useFrame } from "@react-three/fiber"
 import { Environment } from "@react-three/drei"
 import { useOwnEntity } from "../entities/entityHooks"
 
-const shadowMapSize = 4096 // NOTE(Alan): Need large shadow map size for high quality shadows - research this
-const shadowCameraSize = 75
+const shadowMapSize = 1024 // NOTE(Alan): relative to camera size
+const shadowCameraSize = 50 // NOTE(Alan): relative to light distance
+const lightDistance = 15
+
+const totalLightIntensity = 1
+const environmentIntensity = 0.75 // NOTE(Alan): Tweak to alter shadow intensity by relatively changing the directional light intensity
 
 export const Lighting = () => {
   const entity = useOwnEntity()
@@ -26,22 +30,22 @@ export const Lighting = () => {
         <directionalLight
           color="#FFE"
           target={lightTarget.current}
-          position={[0, 8, 0]}
-          intensity={1}
+          position={[-lightDistance * 0.75, lightDistance * 6, lightDistance * 0.5]}
+          intensity={totalLightIntensity - environmentIntensity}
           castShadow
           shadow-bias={-0.0001}
           shadow-mapSize-width={shadowMapSize}
           shadow-mapSize-height={shadowMapSize}
-          shadow-camera-near={0.1}
-          shadow-camera-far={10}
+          shadow-camera-near={0}
+          shadow-camera-far={200}
           shadow-camera-left={-shadowCameraSize}
           shadow-camera-right={shadowCameraSize}
           shadow-camera-top={shadowCameraSize}
           shadow-camera-bottom={-shadowCameraSize}
         />
-
-        <Environment preset="forest" environmentIntensity={0.25} />
       </group>
+
+      <Environment preset="lobby" environmentIntensity={environmentIntensity} />
     </>
   )
 }
