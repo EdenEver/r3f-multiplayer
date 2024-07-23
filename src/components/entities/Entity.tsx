@@ -1,6 +1,6 @@
 import { Entity as EntityType } from "r3f-multiplayer"
-import { EntityState } from "../entity-state/EntityState"
-import { useEntity } from "../entityHooks"
+import { EntityState } from "./entity-state/EntityState"
+import { useEntity } from "./entityHooks"
 
 type Props = {
   entity: EntityType

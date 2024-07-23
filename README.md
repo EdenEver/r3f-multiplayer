@@ -57,3 +57,15 @@ A project showing how to do a multiplayer game with react-three-fiber and geckos
 * https://codesandbox.io/s/2yfgiu?file=/whale.gltf
 * https://github.com/mrdoob/three.js/pull/22667
 * https://github.com/notifications
+
+
+
+### other stuff
+
+* import three as "import * as THREE from 'three';" to avoid name conflicts and seems to be standard
+
+
+### todo list
+
+1. import skinned animated instancing from /lib
+2. get rid of "multiple instances of THREE.js is being imported" warning1

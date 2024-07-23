@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import { NavMeshQuery } from "recast-navigation"
-import { ThreeEvent } from "@react-three/fiber"
+import { ThreeEvent, useThree } from "@react-three/fiber"
 import { init as initRecast } from "@recast-navigation/core"
 import { Capsule, Plane } from "@react-three/drei"
 import { suspend } from "suspend-react"
@@ -8,20 +8,29 @@ import { suspend } from "suspend-react"
 // do: we don't want this circular dependency of the parent component importing the child component
 // move to a context or something like that, just a temporary solution
 import { NavigationMesh, navmesh } from "./navigation/NavigationMesh"
-import { Entity } from "./entities/Entity/Entity"
+import { Entity } from "./entities/Entity"
 import { useGeckosClient } from "../client-components/helpers/useGeckosClient"
-import { useEntityIds, useOwnEntity, useUpdateEntity } from "./entities/entityHooks"
+import { useEntitiesList, useEntityIds, useOwnEntity, useUpdateEntity } from "./entities/entityHooks"
 import { ServerComponent } from "../server-components/helpers/ServerComponent"
 import { ClientComponent } from "../client-components/helpers/ClientComponent"
 import { Path, PathMessage } from "r3f-multiplayer"
 import { Vector3 } from "three"
 import { useCameraFollow } from "./entities/useCameraFollow"
 import { OnlyClient } from "./OnlyClient"
-import { EntityModels } from "./entities/Entity/EntityModels"
+import { InstancedAnimatorOptions, InstancedModel } from "../lib/instanced-skinned-mesh/InstancedModel"
 
 type SceneProps = {
   randomSeed: number
   serverOnly?: boolean
+}
+
+const options: InstancedAnimatorOptions = {
+  count: 100,
+  viewSensitive: false,
+  instanced: false,
+  minAnimationInterval: 30,
+  // maxAnimationInterval: 100,
+  maxDistance: 140,
 }
 
 const Scene = ({ randomSeed }: SceneProps) => {
@@ -29,6 +38,7 @@ const Scene = ({ randomSeed }: SceneProps) => {
 
   const entity = useOwnEntity()
   const entityIds = useEntityIds()
+  const entities = useEntitiesList()
   const updateEntity = useUpdateEntity()
 
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
@@ -108,7 +118,11 @@ const Scene = ({ randomSeed }: SceneProps) => {
       ))}
 
       <OnlyClient>
-        <EntityModels />
+        <InstancedModel
+          modelUrl="models/knight.glb"
+          entities={entities}
+          options={options}
+        />
       </OnlyClient>
 
       <ServerComponent component="ServerEntityMovement" entity={entity} />
